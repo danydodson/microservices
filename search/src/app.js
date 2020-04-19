@@ -1,20 +1,20 @@
-const fetch = require("node-fetch")
-const express = require("express")
+const fetch = require('node-fetch')
+const express = require('express')
 // notice that here we have duplicated our models from the other services
 // this is bad, you should extract the common code in to a npm module
 // that you can then import in to your project just like any other package
-const Video = require("./models/video_model")
-const Book = require("./models/books_model")
+const Video = require('./models/video_model')
+const Book = require('./models/books_model')
 const app = express()
 
-app.get("/", (req, res) => {
-  res.json({ msg: "search" })
+app.get('/', (req, res) => {
+  res.json({ msg: 'search' })
 })
 
 // /api/v1/<something> is a way to version endpoints and it is very useful
 // because it allows you to add new endpoints without breaking old ones
 // e.g /api/v2/<something> could be a new version of the same endpoint type
-app.get("/api/v1/search", async (req, res) => {
+app.get('/api/v1/search', async (req, res) => {
   // we don't want to await we want both request to run at the same time
   const videosPromise = Video.find({})
   const booksPromise = Book.find({})
@@ -36,13 +36,13 @@ app.get("/api/v1/search", async (req, res) => {
   
   The 1 hop rule is that a service can not start a call chain
   longer than 1, here it is ok because:
-  "search -> books|videos -> <no more calls>"
+  'search -> books|videos -> <no more calls>'
 */
-app.get("/api/v1/search/depends-on", async (req, res) => {
+app.get('/api/v1/search/depends-on', async (req, res) => {
   try {
     // we don't want to await we want both request to run at the same time
-    const videoPromise = fetch("http://videos:3000/")
-    const bookPromise = fetch("http://books:3000/")
+    const videoPromise = fetch('http://videos:3000/')
+    const bookPromise = fetch('http://books:3000/')
     const promises = [videoPromise, bookPromise]
     const [videoResponse, bookResponse] = await Promise.all(promises)
     const videoJson = await videoResponse.json()
